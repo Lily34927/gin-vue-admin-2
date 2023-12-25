@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"server/global"
+	"server/router"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,6 +16,8 @@ func Routers() *gin.Engine {
 
 	// 安装插件
 	InstallPlugin(Router)
+	systemRouter := router.RouterGroupAPP.System
+	exampleRouter := router.RouterGroupAPP.Example
 
 	return Router
 

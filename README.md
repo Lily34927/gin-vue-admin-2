@@ -1,2 +1,3 @@
 # gin-vue-admin-2
-learn the code of the project gin-vue-admin
+
+Learn the code of the project gin-vue-admin : `gin-vue-admin-main`

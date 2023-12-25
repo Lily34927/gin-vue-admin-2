@@ -10,4 +10,4 @@ type RouterGroup struct {
 	Example example.RouterGroup
 }
 
-var RouterGroupAPP RouterGroup
+var RouterGroupAPP = new(RouterGroup)
