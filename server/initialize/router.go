@@ -1,8 +1,11 @@
 package initialize
 
 import (
+	"net/http"
 	"server/global"
 	"server/router"
+
+	"server/global"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +22,41 @@ func Routers() *gin.Engine {
 	systemRouter := router.RouterGroupAPP.System
 	exampleRouter := router.RouterGroupAPP.Example
 
-	return Router
+	Router.StaticFS(global.GVA_Config.Local.StorePath, http.Dir(global.GVA_Config.Local.StorePath))
 
+	// swagger
+
+	PublicGroup := Router.Group(global.GVA_Config.System.RouterPrefix)
+	{
+		PublicGroup.GET("/health", func(c *gin.Context) {
+			c.JSON(http.StatusOK, "ok")
+		})
+	}
+	{
+		systemRouter.InitBaseRouter(PublicGroup) // 注册基本功能路由 不做鉴权
+		systemRouter.InitInitRouter(PublicGroup) // 自动化相关功能
+	}
+	PrivateGroup := Router.Group(global.GVA_Config.System.RouterPrefix)
+	PrivateGroup.Use(middleware.JWTAuth()).Use(middleware.CasbinHandler())
+	{
+		systemRouter.InitApiRouter(PrivateGroup, PublicGroup)
+		systemRouter.InitJwtRouter(PrivateGroup)
+		systemRouter.InitUserRouter(PrivateGroup)
+		systemRouter.InitMenuRouter(PrivateGroup)
+		systemRouter.InitSysRouter(PrivateGroup)
+		systemRouter.InitCasbinRouter(PrivateGroup)
+		systemRouter.InitAutoCodeRouter(PrivateGroup)
+		systemRouter.InitAuthorityRouter(PrivateGroup)
+		systemRouter.InitSysDictionaryRouter(PrivateGroup)
+		systemRouter.InitAutoCodeHistoryRouter(PrivateGroup)
+		systemRouter.InitSysDictionaryDetailRouter(PrivateGroup)
+		systemRouter.InitAuthorityBtnRouter(PrivateGroup)
+		systemRouter.InitChatGptRouter(PrivateGroup)
+
+		exampleRouter.InitCustomerRouter(PrivateGroup)
+		exampleRouter.InitFileUploadAndDownloadRouter(PrivateGroup)
+	}
+
+	global.GVA_LOG.Info("router register success")
+	return Router
 }
